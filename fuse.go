@@ -1789,14 +1789,22 @@ func (r *ReadRequest) String() string {
 
 // Respond replies to the request with the given response.
 func (r *ReadRequest) Respond(resp *ReadResponse) {
-	buf := newBuffer(uintptr(len(resp.Data)))
-	buf = append(buf, resp.Data...)
-	r.respond(buf)
+	if resp.ZeroCopy {
+		r.respond(resp.Data)
+	} else {
+		buf := newBuffer(uintptr(len(resp.Data)))
+		buf = append(buf, resp.Data...)
+		r.respond(buf)
+	}
 }
 
 // A ReadResponse is the response to a ReadRequest.
+//
+// If ZeroCopy is true, Data must have leading padding
+// for outHeader (16 Bytes).
 type ReadResponse struct {
-	Data []byte
+	Data     []byte
+	ZeroCopy bool
 }
 
 func (r *ReadResponse) String() string {
