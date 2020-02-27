@@ -232,9 +232,14 @@ func initMount(c *Conn, conf *mountConfig) error {
 	}
 	c.proto = proto
 
+	maxReadahead := conf.maxReadahead
+	if maxReadahead == 0 {
+		maxReadahead = defaultReadahead
+	}
+
 	s := &InitResponse{
 		Library:      proto,
-		MaxReadahead: conf.maxReadahead,
+		MaxReadahead: maxReadahead,
 		MaxWrite:     maxWrite,
 		Flags:        InitBigWrites | conf.initFlags,
 	}
